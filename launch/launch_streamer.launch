@@ -1,0 +1,4 @@
+<launch>
+    <node ns="streamer" name="image" pkg="ros_adapter" type="streamer.py" output="screen">
+    </node>
+</launch>
