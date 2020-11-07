@@ -1,0 +1,4 @@
+<launch>
+    <node ns="talker" name="talker" pkg="ros_adapter" type="talker.py" output="screen">
+    </node>
+</launch>
