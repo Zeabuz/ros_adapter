@@ -14,32 +14,47 @@ import sensordata_pb2_grpc
 
 import numpy as np
 
+
+class SomeSensordata():
+
+    def stream_image():
+        pass
+
+    def stream_lidar():
+        pass
+
+    def stream_radar():
+        pass
+
+
 def streamer():
 
     # Setting up cv_bridge
     bridge = CvBridge()
 
     # Setting up sensordata channel
-    sensordata_channel = grpc.insecure_channel('localhost:50083')
+    sensordata_channel = grpc.insecure_channel('192.168.0.93:30052')
     sensordata_stub = sensordata_pb2_grpc.SensordataStub(sensordata_channel)
-
-    
-    cv_image = cv2.imread('/home/thomas/dev/catkin_ws/src/ros_adapter/scripts/cat.jpg')
-    cv_image = cv_image.reshape(549, 976, 3)
-    cv_image = cv2.cvtColor(cv_image, cv2.COLOR_RGB2BGR)
-    msg = 0 
-    try: 
-        msg = bridge.cv2_to_imgmsg(cv_image, 'bgr8')
-    except CvBridgeError as e:
-        print(e)
-
 
     pub = rospy.Publisher('image', Image, queue_size=10)
     rospy.init_node('streamer', anonymous=True)
-    rate = rospy.Rate(1) # 10hz
+    #rate = rospy.Rate(1)  # 1hz
     while not rospy.is_shutdown():
+
+        for img_chunk in sensordata_stub.StreamSensordata(sensordata_pb2.SensordataRequest(operation="streaming")):
+            buf = np.frombuffer(img_chunk.data, np.uint8)
+            buf = buf.reshape(640, 800, 3)
+            buf = cv2.flip(buf, 0)
+
+        msg = 0
+        try:
+            msg = bridge.cv2_to_imgmsg(buf, 'rgb8')
+        except CvBridgeError as e:
+            print(e)
+
         pub.publish(msg)
-        rate.sleep()
+        #rate.sleep()
+
 
 if __name__ == '__main__':
     try:
