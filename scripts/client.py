@@ -4,6 +4,7 @@ import rospy
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
 
+
 from cv_bridge import CvBridge, CvBridgeError
 
 import grpc
@@ -12,20 +13,27 @@ import cv2
 from sensordata import sensordata_pb2
 from sensordata import sensordata_pb2_grpc
 
+from sensor_streaming import sensor_streaming_pb2
+from sensor_streaming import sensor_streaming_pb2_grpc
+
 import numpy as np
 
+import time
 
-class SomeSensordata():
 
-    def stream_image():
-        pass
+def grpc_streamer():
 
-    def stream_lidar():
-        pass
+    sensor_streaming_channel = grpc.insecure_channel('localhost:30052')
+    sensor_streaming_stub = sensor_streaming_pb2_grpc.SensorStreamingStub(sensor_streaming_channel)
 
-    def stream_radar():
-        pass
+    cv_image = cv2.imread('/home/thomas/dev/gemini_ws/src/ros_adapter/scripts/cat.jpg')
 
+    success = True
+
+    while success:
+        success = sensor_streaming_stub.StreamCameraSensor(sensor_streaming_pb2.CameraStreamingRequest(data=cv_image.tobytes(), dataLength=0, timeStamp=0))
+        time.sleep(1.0)
+        print(success)
 
 def streamer():
 
@@ -58,6 +66,7 @@ def streamer():
 
 if __name__ == '__main__':
     try:
-        streamer()
+        #new_streamer()
+        grpc_streamer()
     except rospy.ROSInterruptException:
         pass
