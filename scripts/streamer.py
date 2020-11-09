@@ -9,8 +9,8 @@ from cv_bridge import CvBridge, CvBridgeError
 import grpc
 import cv2
 
-import sensordata_pb2
-import sensordata_pb2_grpc
+from sensordata import sensordata_pb2
+from sensordata import sensordata_pb2_grpc
 
 import numpy as np
 

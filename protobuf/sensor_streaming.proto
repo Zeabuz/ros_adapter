@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.sensorstreaming";
+option java_outer_classname = "SensorStreaming";
+option objc_class_prefix = "HLW";
+
+package sensorstreaming;
+
+service SensorStreaming {
+    rpc StreamCameraSensor(CameraStreamingRequest) returns (stream CameraStreamingResponse) {}
+}
+
+message CameraStreamingRequest {
+    bytes data = 1;
+    int32 dataLength = 2;
+    uint32 timeStamp = 3;
+}
+
+message CameraStreamingResponse {
+    bool success = 1;
+}
