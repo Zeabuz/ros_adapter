@@ -19,12 +19,23 @@ class SensorStreamingStub(object):
                 request_serializer=sensor__streaming__pb2.CameraStreamingRequest.SerializeToString,
                 response_deserializer=sensor__streaming__pb2.CameraStreamingResponse.FromString,
                 )
+        self.StreamLidarSensor = channel.unary_unary(
+                '/sensorstreaming.SensorStreaming/StreamLidarSensor',
+                request_serializer=sensor__streaming__pb2.LidarStreamingRequest.SerializeToString,
+                response_deserializer=sensor__streaming__pb2.LidarStreamingResponse.FromString,
+                )
 
 
 class SensorStreamingServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def StreamCameraSensor(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def StreamLidarSensor(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -37,6 +48,11 @@ def add_SensorStreamingServicer_to_server(servicer, server):
                     servicer.StreamCameraSensor,
                     request_deserializer=sensor__streaming__pb2.CameraStreamingRequest.FromString,
                     response_serializer=sensor__streaming__pb2.CameraStreamingResponse.SerializeToString,
+            ),
+            'StreamLidarSensor': grpc.unary_unary_rpc_method_handler(
+                    servicer.StreamLidarSensor,
+                    request_deserializer=sensor__streaming__pb2.LidarStreamingRequest.FromString,
+                    response_serializer=sensor__streaming__pb2.LidarStreamingResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -62,5 +78,22 @@ class SensorStreaming(object):
         return grpc.experimental.unary_unary(request, target, '/sensorstreaming.SensorStreaming/StreamCameraSensor',
             sensor__streaming__pb2.CameraStreamingRequest.SerializeToString,
             sensor__streaming__pb2.CameraStreamingResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def StreamLidarSensor(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/sensorstreaming.SensorStreaming/StreamLidarSensor',
+            sensor__streaming__pb2.LidarStreamingRequest.SerializeToString,
+            sensor__streaming__pb2.LidarStreamingResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

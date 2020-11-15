@@ -42,6 +42,11 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
         return sensor_streaming_pb2.CameraStreamingResponse(success=True)
 
+    def StreamLidarSensor(self, request, context):
+        print(request.LidarFields)
+
+        return sensor_streaming_pb2.LidarStreamingResponse(success=True)
+
 
 def serve(pub):
     ip = '192.168.0.116'
