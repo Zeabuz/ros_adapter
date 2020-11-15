@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n io.grpc.examples.sensorstreamingB\017SensorStreamingP\001\242\002\003HLW',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x16sensor_streaming.proto\x12\x0fsensorstreaming\"M\n\x16\x43\x61meraStreamingRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x12\n\ndataLength\x18\x02 \x01(\x05\x12\x11\n\ttimeStamp\x18\x03 \x01(\r\"*\n\x17\x43\x61meraStreamingResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32~\n\x0fSensorStreaming\x12k\n\x12StreamCameraSensor\x12\'.sensorstreaming.CameraStreamingRequest\x1a(.sensorstreaming.CameraStreamingResponse\"\x00\x30\x01\x42;\n io.grpc.examples.sensorstreamingB\x0fSensorStreamingP\x01\xa2\x02\x03HLWb\x06proto3'
+  serialized_pb=b'\n\x16sensor_streaming.proto\x12\x0fsensorstreaming\"M\n\x16\x43\x61meraStreamingRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x12\n\ndataLength\x18\x02 \x01(\x05\x12\x11\n\ttimeStamp\x18\x03 \x01(\r\"*\n\x17\x43\x61meraStreamingResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32|\n\x0fSensorStreaming\x12i\n\x12StreamCameraSensor\x12\'.sensorstreaming.CameraStreamingRequest\x1a(.sensorstreaming.CameraStreamingResponse\"\x00\x42;\n io.grpc.examples.sensorstreamingB\x0fSensorStreamingP\x01\xa2\x02\x03HLWb\x06proto3'
 )
 
 
@@ -131,7 +131,7 @@ _SENSORSTREAMING = _descriptor.ServiceDescriptor(
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
   serialized_start=166,
-  serialized_end=292,
+  serialized_end=290,
   methods=[
   _descriptor.MethodDescriptor(
     name='StreamCameraSensor',

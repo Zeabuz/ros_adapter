@@ -14,7 +14,7 @@ class SensorStreamingStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.StreamCameraSensor = channel.unary_stream(
+        self.StreamCameraSensor = channel.unary_unary(
                 '/sensorstreaming.SensorStreaming/StreamCameraSensor',
                 request_serializer=sensor__streaming__pb2.CameraStreamingRequest.SerializeToString,
                 response_deserializer=sensor__streaming__pb2.CameraStreamingResponse.FromString,
@@ -33,7 +33,7 @@ class SensorStreamingServicer(object):
 
 def add_SensorStreamingServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'StreamCameraSensor': grpc.unary_stream_rpc_method_handler(
+            'StreamCameraSensor': grpc.unary_unary_rpc_method_handler(
                     servicer.StreamCameraSensor,
                     request_deserializer=sensor__streaming__pb2.CameraStreamingRequest.FromString,
                     response_serializer=sensor__streaming__pb2.CameraStreamingResponse.SerializeToString,
@@ -59,7 +59,7 @@ class SensorStreaming(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/sensorstreaming.SensorStreaming/StreamCameraSensor',
+        return grpc.experimental.unary_unary(request, target, '/sensorstreaming.SensorStreaming/StreamCameraSensor',
             sensor__streaming__pb2.CameraStreamingRequest.SerializeToString,
             sensor__streaming__pb2.CameraStreamingResponse.FromString,
             options, channel_credentials,
