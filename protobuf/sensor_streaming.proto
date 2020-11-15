@@ -8,7 +8,7 @@ option objc_class_prefix = "HLW";
 package sensorstreaming;
 
 service SensorStreaming {
-    rpc StreamCameraSensor(CameraStreamingRequest) returns (stream CameraStreamingResponse) {}
+    rpc StreamCameraSensor(CameraStreamingRequest) returns (CameraStreamingResponse) {}
 }
 
 message CameraStreamingRequest {

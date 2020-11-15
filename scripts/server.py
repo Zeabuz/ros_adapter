@@ -26,13 +26,11 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
     def StreamCameraSensor(self, request, context):
         img_string = request.data
 
-        print("Parsing")
-
         cv_image = np.fromstring(img_string, np.uint8)
 
-        cv_image = cv_image.reshape(549, 976, 3)
-
-        print(cv_image.shape)
+        # Backward for some wierd reason
+        cv_image = cv_image.reshape(640, 800, 3)
+        cv_image = cv2.flip(cv_image, 0)
 
         msg = 0
         try:
@@ -46,9 +44,12 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
 
 def serve(pub):
+    ip = '192.168.0.116'
+    port = '30052'
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(pub), server)
-    server.add_insecure_port('localhost:30052')
+    server.add_insecure_port(ip + ':' + port)
+    print(ip + ":" + port)
     server.start()
     server.wait_for_termination()
 
