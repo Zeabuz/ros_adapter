@@ -4,8 +4,10 @@ from concurrent import futures
 import logging
 
 import rospy
-from std_msgs.msg import String
+import std_msgs.msg
+from std_msgs.msg import String, Header
 from sensor_msgs.msg import Image
+from sensor_msgs.msg import PointCloud2
 
 from cv_bridge import CvBridge, CvBridgeError
 
@@ -17,11 +19,13 @@ from sensor_streaming import sensor_streaming_pb2_grpc
 
 import numpy as np
 
+
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
-    def __init__(self, pub):
+    def __init__(self, camera_pub, lidar_pub):
         print("creating")
         self.bridge = CvBridge()
-        self.pub = pub
+        self.camera_pub = camera_pub
+        self.lidar_pub = lidar_pub
 
     def StreamCameraSensor(self, request, context):
         img_string = request.data
@@ -38,21 +42,42 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         except CvBridgeError as e:
             print(e)
 
-        self.pub.publish(msg)
+        self.camera_pub.publish(msg)
 
         return sensor_streaming_pb2.CameraStreamingResponse(success=True)
 
     def StreamLidarSensor(self, request, context):
-        print(request.LidarFields)
+        lidarfields = request.LidarFields
+    
+        pointcloud_msg = PointCloud2()
+        header = std_msgs.msg.Header()
+        header.stamp = request.timeInSeconds
+
+
+        header.frame_id = "lidar"
+        pointcloud_msg.header = header
+        
+        print(pointcloud_msg)
+
+#        pointcloud_msg.height = request.height
+#        pointcloud_msg.width = request.width
+#
+#        pointcloud_msg.is_bigendian = request.isBigEndian
+#        pointcloud_msg.point_step = request.point_step
+#        pointcloud_msg.row_step = request.row_step
+#        pointcloud_msg.data = request.data
+#        pointcloud_msg.is_dense = request.isDense
+#
+#        print(pointcloud_msg)
 
         return sensor_streaming_pb2.LidarStreamingResponse(success=True)
 
 
-def serve(pub):
+def serve(camera_pub, lidar_pub):
     ip = '192.168.0.116'
     port = '30052'
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(pub), server)
+    sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pub, lidar_pub), server)
     server.add_insecure_port(ip + ':' + port)
     print(ip + ":" + port)
     server.start()
@@ -60,6 +85,7 @@ def serve(pub):
 
 
 if __name__ == '__main__':
-    pub = rospy.Publisher('server_image', Image, queue_size=10)
+    camera_pub = rospy.Publisher('server_image', Image, queue_size=10)
+    lidar_pub = rospy.Publisher('server_lidar', PointCloud2, queue_size=10)
     rospy.init_node('server', anonymous=True)
-    serve(pub)
+    serve(camera_pub, lidar_pub)
