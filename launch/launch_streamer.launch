@@ -1,6 +1,0 @@
-<launch>
-    <node ns="server" name="server_image" pkg="ros_adapter" type="server.py" output="screen">
-    </node>
-    <node ns="client" name="client_image" pkg="ros_adapter" type="client.py">
-    </node>
-</launch>
