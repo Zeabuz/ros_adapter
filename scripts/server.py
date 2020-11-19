@@ -18,6 +18,7 @@ from sensor_streaming import sensor_streaming_pb2
 from sensor_streaming import sensor_streaming_pb2_grpc
 
 import numpy as np
+import time
 
 
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
@@ -50,7 +51,8 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
     
         pointcloud_msg = PointCloud2()
         header = std_msgs.msg.Header()
-        header.stamp = request.timeInSeconds
+        header.stamp = rospy.Time.from_sec(request.timeInSeconds)
+        
 
         header.frame_id = "lidar"
         pointcloud_msg.header = header
@@ -61,7 +63,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         fields = request.fields
 
         # TODO: parse this
-        for i in range(fields.length):                
+        for i in range(len(fields)):                
             pointcloud_msg.fields[i].name = fields[i].name
             pointcloud_msg.fields[i].offset = fields[i].offset
             pointcloud_msg.fields[i].datatype = fields[i].datatype
@@ -71,7 +73,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         pointcloud_msg.point_step = request.point_step
         pointcloud_msg.row_step = request.row_step
         pointcloud_msg.data = request.data
-        pointcloud_msg.is_dense = request.isDense
+        pointcloud_msg.is_dense = request.is_dense
 
         self.lidar_pub.publish(pointcloud_msg)
 
@@ -79,8 +81,11 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
 
 def serve(camera_pub, lidar_pub):
-    #ip = '192.168.0.116'
-    ip = '172.18.106.219'
+    # Desktop VM
+    ip = '192.168.0.116'
+    
+    # Laptop WSL2
+    #ip = '172.18.106.219'
     port = '30052'
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pub, lidar_pub), server)
