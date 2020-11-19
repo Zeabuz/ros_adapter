@@ -47,29 +47,33 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         return sensor_streaming_pb2.CameraStreamingResponse(success=True)
 
     def StreamLidarSensor(self, request, context):
-        print("Lidar")
-        lidarfields = request.LidarFields
     
         pointcloud_msg = PointCloud2()
         header = std_msgs.msg.Header()
         header.stamp = request.timeInSeconds
 
-
         header.frame_id = "lidar"
         pointcloud_msg.header = header
-        
-        print(pointcloud_msg)
 
-#        pointcloud_msg.height = request.height
-#        pointcloud_msg.width = request.width
-#
-#        pointcloud_msg.is_bigendian = request.isBigEndian
-#        pointcloud_msg.point_step = request.point_step
-#        pointcloud_msg.row_step = request.row_step
-#        pointcloud_msg.data = request.data
-#        pointcloud_msg.is_dense = request.isDense
-#
-#        print(pointcloud_msg)
+        pointcloud_msg.height = request.height
+        pointcloud_msg.width = request.width
+
+        fields = request.fields
+
+        # TODO: parse this
+        for i in range(fields.length):                
+            pointcloud_msg.fields[i].name = fields[i].name
+            pointcloud_msg.fields[i].offset = fields[i].offset
+            pointcloud_msg.fields[i].datatype = fields[i].datatype
+            pointcloud_msg.fields[i].count = fields[i].count
+
+        pointcloud_msg.is_bigendian = request.isBigEndian
+        pointcloud_msg.point_step = request.point_step
+        pointcloud_msg.row_step = request.row_step
+        pointcloud_msg.data = request.data
+        pointcloud_msg.is_dense = request.isDense
+
+        self.lidar_pub.publish(pointcloud_msg)
 
         return sensor_streaming_pb2.LidarStreamingResponse(success=True)
 
