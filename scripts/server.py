@@ -74,7 +74,8 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
 
 def serve(camera_pub, lidar_pub):
-    ip = '192.168.0.116'
+    #ip = '192.168.0.116'
+    ip = '172.18.106.219'
     port = '30052'
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pub, lidar_pub), server)
