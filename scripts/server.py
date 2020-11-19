@@ -47,6 +47,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         return sensor_streaming_pb2.CameraStreamingResponse(success=True)
 
     def StreamLidarSensor(self, request, context):
+        print("Lidar")
         lidarfields = request.LidarFields
     
         pointcloud_msg = PointCloud2()
