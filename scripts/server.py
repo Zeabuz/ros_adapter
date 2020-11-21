@@ -7,7 +7,7 @@ import rospy
 import std_msgs.msg
 from std_msgs.msg import String, Header
 from sensor_msgs.msg import Image
-from sensor_msgs.msg import PointCloud2
+from sensor_msgs.msg import PointCloud2, PointField
 
 from cv_bridge import CvBridge, CvBridgeError
 
@@ -19,6 +19,11 @@ from sensor_streaming import sensor_streaming_pb2_grpc
 
 import numpy as np
 import time
+import struct
+
+import sys
+import array
+import pdb
 
 
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
@@ -48,13 +53,17 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         return sensor_streaming_pb2.CameraStreamingResponse(success=True)
 
     def StreamLidarSensor(self, request, context):
+        """
+        Takes in a gRPC LidarStreamingRequest containing
+        all the data needed to create and publish a PointCloud2
+        ROS message.
+        """
     
         pointcloud_msg = PointCloud2()
         header = std_msgs.msg.Header()
         header.stamp = rospy.Time.from_sec(request.timeInSeconds)
         
-
-        header.frame_id = "lidar"
+        header.frame_id = "velodyne"
         pointcloud_msg.header = header
 
         pointcloud_msg.height = request.height
@@ -62,8 +71,9 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
         fields = request.fields
 
-        # TODO: parse this
-        for i in range(len(fields)):                
+        # Set PointCloud[] fields in pointcloud_msg
+        for i in range(len(fields)):             
+            pointcloud_msg.fields.append(PointField())
             pointcloud_msg.fields[i].name = fields[i].name
             pointcloud_msg.fields[i].offset = fields[i].offset
             pointcloud_msg.fields[i].datatype = fields[i].datatype
@@ -72,7 +82,9 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         pointcloud_msg.is_bigendian = request.isBigEndian
         pointcloud_msg.point_step = request.point_step
         pointcloud_msg.row_step = request.row_step
+
         pointcloud_msg.data = request.data
+
         pointcloud_msg.is_dense = request.is_dense
 
         self.lidar_pub.publish(pointcloud_msg)
