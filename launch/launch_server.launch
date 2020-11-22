@@ -1,5 +1,5 @@
 
 <launch>
-    <node ns="server" name="server_image" pkg="ros_adapter" type="server.py" output="screen">
+    <node ns="/" name="syntetic_data" pkg="ros_adapter" type="server.py" output="screen">
     </node>
 </launch>
