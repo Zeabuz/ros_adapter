@@ -50,9 +50,12 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         cv_image = cv_image.reshape(640, 800, 3)
         cv_image = cv2.flip(cv_image, 0)
 
-        msg = 0
+        msg = Image()
+        header = std_msgs.msg.Header()
         try:
             msg = self.bridge.cv2_to_imgmsg(cv_image, 'rgb8')
+            header.stamp = rospy.Time.from_sec(request.timeStamp)
+            msg.header = header
         except CvBridgeError as e:
             print(e)
 
@@ -148,11 +151,19 @@ def serve(camera_pub, lidar_pub, radar_pub):
 
 
 if __name__ == '__main__':
+    # Topics:
+    # /EO/F/image_raw 
+    # /EO/FR/image_raw 
+    # /EO/RR/image_raw 
+    # /EO/RL/image_raw 
+    # /EO/FL/image_raw 
+
     camera_pub = rospy.Publisher('server_image', Image, queue_size=10)
-    lidar_pub = rospy.Publisher('server_lidar', PointCloud2, queue_size=10)
+
+    lidar_pub = rospy.Publisher('velodyne_points', PointCloud2, queue_size=10)
 
     # TODO: Change the message type to be published
-    radar_pub = rospy.Publisher('server_radar', RadarSpoke, queue_size=10)
+    radar_pub = rospy.Publisher('radar/driver/spokes', RadarSpoke, queue_size=10)
 
-    rospy.init_node('server', anonymous=True)
+    rospy.init_node('syntetic_data', anonymous=True)
     serve(camera_pub, lidar_pub, radar_pub)
