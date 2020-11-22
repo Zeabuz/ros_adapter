@@ -8,6 +8,7 @@ import std_msgs.msg
 from std_msgs.msg import String, Header
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import PointCloud2, PointField
+from ros_adapter.msg import RadarSpoke
 
 from cv_bridge import CvBridge, CvBridgeError
 
@@ -107,6 +108,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         ROS message.
         """
     
+        radar_spoke_msg = RadarSpoke()
         pointcloud_msg = PointCloud2()
         header = std_msgs.msg.Header()
         header.stamp = rospy.Time.from_sec(request.timeInSeconds)
