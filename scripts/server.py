@@ -158,7 +158,7 @@ if __name__ == '__main__':
     # /EO/RL/image_raw 
     # /EO/FL/image_raw 
 
-    camera_pub = rospy.Publisher('server_image', Image, queue_size=10)
+    camera_pub = rospy.Publisher('EO/F/image_raw', Image, queue_size=10)
 
     lidar_pub = rospy.Publisher('velodyne_points', PointCloud2, queue_size=10)
 
