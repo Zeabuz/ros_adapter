@@ -108,29 +108,27 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         ROS message.
         """
 
-        metadata = request.metaData
-        number_of_spokes = len(metadata)
+        number_of_spokes = request.numSpokes
 
         for i in range(number_of_spokes):
-            
+
             radar_spoke_msg = RadarSpoke()
+
+            # Header
             header = std_msgs.msg.Header()
-
-            header.stamp = rospy.Time.from_sec(metadata[i].timeInSeconds)
             header.frame_id = "radar"
-            
-            radar_spoke_msg.range_start = metadata[i].rangeStart
-            radar_spoke_msg.range_increment = metadata[i].rangeIncrement
-            radar_spoke_msg.azimuth = metadata[i].azimuth
-            radar_spoke_msg.num_samples = metadata[i].numSamples
-            radar_spoke_msg.min_intensity = metadata[i].minIntensity
-            radar_spoke_msg.max_intensity = metadata[i].maxIntensity
+            header.stamp = rospy.Time.from_sec(request.timeInSeconds[i])
+            radar_spoke_msg.azimuth = request.azimuth[i]
+            radar_spoke_msg.intensity = request.radarSpokes[i * request.numSamples : i * request.numSamples + request.numSamples]
 
-            # Take slice of radarSpokes for the specific spoke
-            radar_spoke_msg.intensity = request.radarSpokes[i * metadata[i].numSamples : i * metadata[i].numSamples + metadata[i].numSamples]
+            radar_spoke_msg.range_start = request.rangeStart
+            radar_spoke_msg.range_increment = request.rangeIncrement
+            radar_spoke_msg.min_intensity = request.minIntensity
+            radar_spoke_msg.max_intensity = request.maxIntensity
+            radar_spoke_msg.num_samples = request.numSamples
 
             pdb.set_trace()
-    
+            
             # TODO: 
             self.radar_pub.publish(radar_spoke_msg)
 
