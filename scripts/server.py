@@ -116,7 +116,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
             # Header
             header = std_msgs.msg.Header()
-            header.frame_id = "radar"
+            header.frame_id = "milliampere_radar"
             header.stamp = rospy.Time.from_sec(request.timeInSeconds[i])
             radar_spoke_msg.azimuth = request.azimuth[i]
             radar_spoke_msg.intensity = request.radarSpokes[i * request.numSamples : i * request.numSamples + request.numSamples]
@@ -127,9 +127,6 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
             radar_spoke_msg.max_intensity = request.maxIntensity
             radar_spoke_msg.num_samples = request.numSamples
 
-            pdb.set_trace()
-            
-            # TODO: 
             self.radar_pub.publish(radar_spoke_msg)
 
         return sensor_streaming_pb2.RadarStreamingResponse(success=True)
