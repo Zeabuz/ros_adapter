@@ -103,20 +103,36 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
     def StreamRadarSensor(self, request, context):
         """
-        Takes in a gRPC LidarStreamingRequest containing
-        all the data needed to create and publish a PointCloud2
+        Takes in a gRPC RadarStreamingRequest containing
+        all the data needed to create and publish a RadarSpoke
         ROS message.
         """
-    
-        radar_spoke_msg = RadarSpoke()
-        pointcloud_msg = PointCloud2()
-        header = std_msgs.msg.Header()
-        header.stamp = rospy.Time.from_sec(request.timeInSeconds)
-        
-        header.frame_id = "radar"
-        pointcloud_msg.header = header
 
-        self.radar_pub.publish(pointcloud_msg)
+        metadata = request.metaData
+        number_of_spokes = len(metadata)
+
+        for i in range(number_of_spokes):
+            
+            radar_spoke_msg = RadarSpoke()
+            header = std_msgs.msg.Header()
+
+            header.stamp = rospy.Time.from_sec(metadata[i].timeInSeconds)
+            header.frame_id = "radar"
+            
+            radar_spoke_msg.range_start = metadata[i].rangeStart
+            radar_spoke_msg.range_increment = metadata[i].rangeIncrement
+            radar_spoke_msg.azimuth = metadata[i].azimuth
+            radar_spoke_msg.num_samples = metadata[i].numSamples
+            radar_spoke_msg.min_intensity = metadata[i].minIntensity
+            radar_spoke_msg.max_intensity = metadata[i].maxIntensity
+
+            # Take slice of radarSpokes for the specific spoke
+            radar_spoke_msg.intensity = request.radarSpokes[i * metadata[i].numSamples : i * metadata[i].numSamples + metadata[i].numSamples]
+
+            pdb.set_trace()
+    
+            # TODO: 
+            self.radar_pub.publish(radar_spoke_msg)
 
         return sensor_streaming_pb2.RadarStreamingResponse(success=True)
 
@@ -141,7 +157,7 @@ if __name__ == '__main__':
     lidar_pub = rospy.Publisher('server_lidar', PointCloud2, queue_size=10)
 
     # TODO: Change the message type to be published
-    radar_pub = rospy.Publisher('server_radar', PointCloud2, queue_size=10)
+    radar_pub = rospy.Publisher('server_radar', RadarSpoke, queue_size=10)
 
     rospy.init_node('server', anonymous=True)
     serve(camera_pub, lidar_pub, radar_pub)
