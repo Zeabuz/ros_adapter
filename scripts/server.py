@@ -34,6 +34,11 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         self.lidar_pub = lidar_pub
 
     def StreamCameraSensor(self, request, context):
+        """
+        Takes in a gRPC SensorStreamingRequest containing
+        all the data needed to create and publish a sensor_msgs/Image
+        ROS message.
+        """
         img_string = request.data
 
         cv_image = np.fromstring(img_string, np.uint8)
