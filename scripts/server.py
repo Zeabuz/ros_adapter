@@ -27,11 +27,13 @@ import pdb
 
 
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
-    def __init__(self, camera_pub, lidar_pub):
+    def __init__(self, camera_pub, lidar_pub, radar_pub):
         print("creating")
         self.bridge = CvBridge()
         self.camera_pub = camera_pub
         self.lidar_pub = lidar_pub
+        self.radar_pub = radar_pub
+
 
     def StreamCameraSensor(self, request, context):
         """
@@ -57,6 +59,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
         return sensor_streaming_pb2.CameraStreamingResponse(success=True)
 
+
     def StreamLidarSensor(self, request, context):
         """
         Takes in a gRPC LidarStreamingRequest containing
@@ -77,7 +80,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         fields = request.fields
 
         # Set PointCloud[] fields in pointcloud_msg
-        for i in range(len(fields)):             
+        for i in range(len(fields)):
             pointcloud_msg.fields.append(PointField())
             pointcloud_msg.fields[i].name = fields[i].name
             pointcloud_msg.fields[i].offset = fields[i].offset
@@ -97,7 +100,26 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         return sensor_streaming_pb2.LidarStreamingResponse(success=True)
 
 
-def serve(camera_pub, lidar_pub):
+    def StreamRadarSensor(self, request, context):
+        """
+        Takes in a gRPC LidarStreamingRequest containing
+        all the data needed to create and publish a PointCloud2
+        ROS message.
+        """
+    
+        pointcloud_msg = PointCloud2()
+        header = std_msgs.msg.Header()
+        header.stamp = rospy.Time.from_sec(request.timeInSeconds)
+        
+        header.frame_id = "radar"
+        pointcloud_msg.header = header
+
+        self.radar_pub.publish(pointcloud_msg)
+
+        return sensor_streaming_pb2.RadarStreamingResponse(success=True)
+
+
+def serve(camera_pub, lidar_pub, radar_pub):
     # Desktop VM
     ip = '192.168.0.116'
     
@@ -105,7 +127,7 @@ def serve(camera_pub, lidar_pub):
     #ip = '172.18.106.219'
     port = '30052'
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pub, lidar_pub), server)
+    sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pub, lidar_pub, radar_pub), server)
     server.add_insecure_port(ip + ':' + port)
     print(ip + ":" + port)
     server.start()
@@ -115,5 +137,9 @@ def serve(camera_pub, lidar_pub):
 if __name__ == '__main__':
     camera_pub = rospy.Publisher('server_image', Image, queue_size=10)
     lidar_pub = rospy.Publisher('server_lidar', PointCloud2, queue_size=10)
+
+    # TODO: Change the message type to be published
+    radar_pub = rospy.Publisher('server_radar', PointCloud2, queue_size=10)
+
     rospy.init_node('server', anonymous=True)
-    serve(camera_pub, lidar_pub)
+    serve(camera_pub, lidar_pub, radar_pub)
