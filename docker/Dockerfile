@@ -22,8 +22,9 @@ RUN apt-get update && \
 RUN apt-get update &&  \
     apt-get install -y python \
     python-dev \
-    python-pip 
+    python-pip  \
+    ros-melodic-cv-bridge
 
+RUN mkdir -p gemini_ws/src
 
-RUN git clone https://github.com/Gemini-team/ros_adapter.git
-
+COPY ros_adapter gemini_ws/src/ros_adapter
