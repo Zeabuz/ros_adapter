@@ -28,10 +28,10 @@ import pdb
 
 
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
-    def __init__(self, camera_pub, lidar_pub, radar_pub):
+    def __init__(self, camera_pubs, lidar_pub, radar_pub):
         print("creating")
         self.bridge = CvBridge()
-        self.camera_pub = camera_pub
+        self.camera_pubs = camera_pubs
         self.lidar_pub = lidar_pub
         self.radar_pub = radar_pub
 
@@ -59,7 +59,9 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         except CvBridgeError as e:
             print(e)
 
-        self.camera_pub.publish(msg)
+        camera_pubs[request.frame_id].publish(msg)
+
+        #self.camera_pub.publish(msg)
 
         return sensor_streaming_pb2.CameraStreamingResponse(success=True)
 
@@ -135,7 +137,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         return sensor_streaming_pb2.RadarStreamingResponse(success=True)
 
 
-def serve(camera_pub, lidar_pub, radar_pub):
+def serve(camera_pubs, lidar_pub, radar_pub):
     # Desktop VM
     ip = '192.168.0.116'
     
@@ -143,7 +145,7 @@ def serve(camera_pub, lidar_pub, radar_pub):
     #ip = '172.18.106.219'
     port = '30052'
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pub, lidar_pub, radar_pub), server)
+    sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pubs, lidar_pub, radar_pub), server)
     server.add_insecure_port(ip + ':' + port)
     print(ip + ":" + port)
     server.start()
@@ -151,14 +153,18 @@ def serve(camera_pub, lidar_pub, radar_pub):
 
 
 if __name__ == '__main__':
+
     # Topics:
     # /EO/F/image_raw 
     # /EO/FR/image_raw 
     # /EO/RR/image_raw 
     # /EO/RL/image_raw 
     # /EO/FL/image_raw 
-
-    camera_pub = rospy.Publisher('EO/F/image_raw', Image, queue_size=10)
+    cam_ids = ["F", "FL", "FR", "RL", "RR"]
+    camera_pubs = dict()
+    for cam_id in cam_ids:
+        camera_pubs[cam_id] = rospy.Publisher('EO/' + cam_id + '/image_raw',
+                                               Image, queue_size=10)
 
     lidar_pub = rospy.Publisher('velodyne_points', PointCloud2, queue_size=10)
 
@@ -166,4 +172,4 @@ if __name__ == '__main__':
     radar_pub = rospy.Publisher('radar/driver/spokes', RadarSpoke, queue_size=10)
 
     rospy.init_node('syntetic_data', anonymous=True)
-    serve(camera_pub, lidar_pub, radar_pub)
+    serve(camera_pubs, lidar_pub, radar_pub)
