@@ -39,7 +39,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         cv_image = np.fromstring(img_string, np.uint8)
 
         # Backward for some wierd reason
-        cv_image = cv_image.reshape(640, 800, 3)
+        cv_image = cv_image.reshape(request.height, request.width, 3)
         cv_image = cv2.flip(cv_image, 0)
 
         msg = Image()

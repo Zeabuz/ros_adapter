@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n io.grpc.examples.sensorstreamingB\017SensorStreamingP\001\242\002\003HLW',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x16sensor_streaming.proto\x12\x0fsensorstreaming\"K\n\x16\x43\x61meraStreamingRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x11\n\ttimeStamp\x18\x02 \x01(\x01\x12\x10\n\x08\x66rame_id\x18\x03 \x01(\t\"*\n\x17\x43\x61meraStreamingResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\'\n\x04Vec3\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\"\xc8\x01\n\nPointField\x12\x0c\n\x04INT8\x18\x01 \x01(\r\x12\r\n\x05UINT8\x18\x02 \x01(\r\x12\r\n\x05INT16\x18\x03 \x01(\r\x12\x0e\n\x06UINT16\x18\x04 \x01(\r\x12\r\n\x05INT32\x18\x05 \x01(\r\x12\x0e\n\x06UINT32\x18\x06 \x01(\r\x12\x0f\n\x07\x46LOAT32\x18\x07 \x01(\r\x12\x0f\n\x07\x46LOAT64\x18\x08 \x01(\r\x12\x0c\n\x04name\x18\t \x01(\t\x12\x0e\n\x06offset\x18\n \x01(\r\x12\x10\n\x08\x64\x61tatype\x18\x0b \x01(\r\x12\r\n\x05\x63ount\x18\x0c \x01(\r\"\xd5\x01\n\x15LidarStreamingRequest\x12\x15\n\rtimeInSeconds\x18\x01 \x01(\x01\x12\x0e\n\x06height\x18\x02 \x01(\r\x12\r\n\x05width\x18\x03 \x01(\r\x12+\n\x06\x66ields\x18\x04 \x03(\x0b\x32\x1b.sensorstreaming.PointField\x12\x13\n\x0bisBigEndian\x18\x05 \x01(\x08\x12\x12\n\npoint_step\x18\x06 \x01(\r\x12\x10\n\x08row_step\x18\x07 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x08 \x01(\x0c\x12\x10\n\x08is_dense\x18\t \x01(\x08\")\n\x16LidarStreamingResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\xd3\x01\n\x15RadarStreamingRequest\x12\x16\n\x0erangeIncrement\x18\x01 \x01(\x02\x12\x12\n\nrangeStart\x18\x02 \x01(\x02\x12\x12\n\nnumSamples\x18\x03 \x01(\r\x12\x11\n\tnumSpokes\x18\x04 \x01(\r\x12\x14\n\x0cminIntensity\x18\x05 \x01(\r\x12\x14\n\x0cmaxIntensity\x18\x06 \x01(\r\x12\x15\n\rtimeInSeconds\x18\x07 \x03(\x01\x12\x0f\n\x07\x61zimuth\x18\x08 \x03(\x02\x12\x13\n\x0bradarSpokes\x18\t \x01(\x0c\")\n\x16RadarStreamingResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\xcc\x02\n\x0fSensorStreaming\x12i\n\x12StreamCameraSensor\x12\'.sensorstreaming.CameraStreamingRequest\x1a(.sensorstreaming.CameraStreamingResponse\"\x00\x12\x66\n\x11StreamLidarSensor\x12&.sensorstreaming.LidarStreamingRequest\x1a\'.sensorstreaming.LidarStreamingResponse\"\x00\x12\x66\n\x11StreamRadarSensor\x12&.sensorstreaming.RadarStreamingRequest\x1a\'.sensorstreaming.RadarStreamingResponse\"\x00\x42;\n io.grpc.examples.sensorstreamingB\x0fSensorStreamingP\x01\xa2\x02\x03HLWb\x06proto3'
+  serialized_pb=b'\n\x16sensor_streaming.proto\x12\x0fsensorstreaming\"j\n\x16\x43\x61meraStreamingRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x11\n\ttimeStamp\x18\x02 \x01(\x01\x12\r\n\x05width\x18\x03 \x01(\r\x12\x0e\n\x06height\x18\x04 \x01(\r\x12\x10\n\x08\x66rame_id\x18\x05 \x01(\t\"*\n\x17\x43\x61meraStreamingResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\'\n\x04Vec3\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\"\xc8\x01\n\nPointField\x12\x0c\n\x04INT8\x18\x01 \x01(\r\x12\r\n\x05UINT8\x18\x02 \x01(\r\x12\r\n\x05INT16\x18\x03 \x01(\r\x12\x0e\n\x06UINT16\x18\x04 \x01(\r\x12\r\n\x05INT32\x18\x05 \x01(\r\x12\x0e\n\x06UINT32\x18\x06 \x01(\r\x12\x0f\n\x07\x46LOAT32\x18\x07 \x01(\r\x12\x0f\n\x07\x46LOAT64\x18\x08 \x01(\r\x12\x0c\n\x04name\x18\t \x01(\t\x12\x0e\n\x06offset\x18\n \x01(\r\x12\x10\n\x08\x64\x61tatype\x18\x0b \x01(\r\x12\r\n\x05\x63ount\x18\x0c \x01(\r\"\xd5\x01\n\x15LidarStreamingRequest\x12\x15\n\rtimeInSeconds\x18\x01 \x01(\x01\x12\x0e\n\x06height\x18\x02 \x01(\r\x12\r\n\x05width\x18\x03 \x01(\r\x12+\n\x06\x66ields\x18\x04 \x03(\x0b\x32\x1b.sensorstreaming.PointField\x12\x13\n\x0bisBigEndian\x18\x05 \x01(\x08\x12\x12\n\npoint_step\x18\x06 \x01(\r\x12\x10\n\x08row_step\x18\x07 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x08 \x01(\x0c\x12\x10\n\x08is_dense\x18\t \x01(\x08\")\n\x16LidarStreamingResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\xd3\x01\n\x15RadarStreamingRequest\x12\x16\n\x0erangeIncrement\x18\x01 \x01(\x02\x12\x12\n\nrangeStart\x18\x02 \x01(\x02\x12\x12\n\nnumSamples\x18\x03 \x01(\r\x12\x11\n\tnumSpokes\x18\x04 \x01(\r\x12\x14\n\x0cminIntensity\x18\x05 \x01(\r\x12\x14\n\x0cmaxIntensity\x18\x06 \x01(\r\x12\x15\n\rtimeInSeconds\x18\x07 \x03(\x01\x12\x0f\n\x07\x61zimuth\x18\x08 \x03(\x02\x12\x13\n\x0bradarSpokes\x18\t \x01(\x0c\")\n\x16RadarStreamingResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\xcc\x02\n\x0fSensorStreaming\x12i\n\x12StreamCameraSensor\x12\'.sensorstreaming.CameraStreamingRequest\x1a(.sensorstreaming.CameraStreamingResponse\"\x00\x12\x66\n\x11StreamLidarSensor\x12&.sensorstreaming.LidarStreamingRequest\x1a\'.sensorstreaming.LidarStreamingResponse\"\x00\x12\x66\n\x11StreamRadarSensor\x12&.sensorstreaming.RadarStreamingRequest\x1a\'.sensorstreaming.RadarStreamingResponse\"\x00\x42;\n io.grpc.examples.sensorstreamingB\x0fSensorStreamingP\x01\xa2\x02\x03HLWb\x06proto3'
 )
 
 
@@ -48,8 +48,22 @@ _CAMERASTREAMINGREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='frame_id', full_name='sensorstreaming.CameraStreamingRequest.frame_id', index=2,
-      number=3, type=9, cpp_type=9, label=1,
+      name='width', full_name='sensorstreaming.CameraStreamingRequest.width', index=2,
+      number=3, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='height', full_name='sensorstreaming.CameraStreamingRequest.height', index=3,
+      number=4, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='frame_id', full_name='sensorstreaming.CameraStreamingRequest.frame_id', index=4,
+      number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -67,7 +81,7 @@ _CAMERASTREAMINGREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=43,
-  serialized_end=118,
+  serialized_end=149,
 )
 
 
@@ -98,8 +112,8 @@ _CAMERASTREAMINGRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=120,
-  serialized_end=162,
+  serialized_start=151,
+  serialized_end=193,
 )
 
 
@@ -144,8 +158,8 @@ _VEC3 = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=164,
-  serialized_end=203,
+  serialized_start=195,
+  serialized_end=234,
 )
 
 
@@ -253,8 +267,8 @@ _POINTFIELD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=206,
-  serialized_end=406,
+  serialized_start=237,
+  serialized_end=437,
 )
 
 
@@ -341,8 +355,8 @@ _LIDARSTREAMINGREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=409,
-  serialized_end=622,
+  serialized_start=440,
+  serialized_end=653,
 )
 
 
@@ -373,8 +387,8 @@ _LIDARSTREAMINGRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=624,
-  serialized_end=665,
+  serialized_start=655,
+  serialized_end=696,
 )
 
 
@@ -461,8 +475,8 @@ _RADARSTREAMINGREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=668,
-  serialized_end=879,
+  serialized_start=699,
+  serialized_end=910,
 )
 
 
@@ -493,8 +507,8 @@ _RADARSTREAMINGRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=881,
-  serialized_end=922,
+  serialized_start=912,
+  serialized_end=953,
 )
 
 _LIDARSTREAMINGREQUEST.fields_by_name['fields'].message_type = _POINTFIELD
@@ -574,8 +588,8 @@ _SENSORSTREAMING = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=925,
-  serialized_end=1257,
+  serialized_start=956,
+  serialized_end=1288,
   methods=[
   _descriptor.MethodDescriptor(
     name='StreamCameraSensor',
