@@ -20,8 +20,11 @@ The easiest way to build the container is to copy the Docker file from
 Then run the following command: `docker build -t ros_adapter .`, which will pull and build 
 all you need for the container.
 
+## NOTE: See this stackoverflow for how to set own network with static IP: https://stackoverflow.com/questions/27937185/assign-static-ip-to-docker-container
+
 For starting and running the container, run the following command: 
 `docker run -it --net=host --name ros_adapter ros_adapter`
+
 
 This will start the container and attach you to an interactive shell.
 Change into the `gemini_ws` directory and run: `catkin_make` followed by
