@@ -139,10 +139,11 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
 def serve(camera_pubs, lidar_pub, radar_pub):
     # Desktop VM
-    ip = '192.168.0.116'
-    
-    # Laptop WSL2
-    #ip = '172.18.106.219'
+    #ip = '192.168.0.116'
+
+    # Docker Container
+    ip = '172.18.0.22'
+
     port = '30052'
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pubs, lidar_pub, radar_pub), server)
