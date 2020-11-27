@@ -1,11 +1,10 @@
 #!/usr/bin/env python2
 
 from concurrent import futures
-import logging
 
 import rospy
+
 import std_msgs.msg
-from std_msgs.msg import String, Header
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import PointCloud2, PointField
 from ros_adapter.msg import RadarSpoke
@@ -19,12 +18,6 @@ from sensor_streaming import sensor_streaming_pb2
 from sensor_streaming import sensor_streaming_pb2_grpc
 
 import numpy as np
-import time
-import struct
-
-import sys
-import array
-import pdb
 
 
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
@@ -34,7 +27,6 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         self.camera_pubs = camera_pubs
         self.lidar_pub = lidar_pub
         self.radar_pub = radar_pub
-
 
     def StreamCameraSensor(self, request, context):
         """
@@ -61,10 +53,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
         camera_pubs[request.frame_id].publish(msg)
 
-        #self.camera_pub.publish(msg)
-
         return sensor_streaming_pb2.CameraStreamingResponse(success=True)
-
 
     def StreamLidarSensor(self, request, context):
         """
@@ -72,7 +61,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         all the data needed to create and publish a PointCloud2
         ROS message.
         """
-    
+
         pointcloud_msg = PointCloud2()
         header = std_msgs.msg.Header()
         header.stamp = rospy.Time.from_sec(request.timeInSeconds)
@@ -139,7 +128,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
 def serve(camera_pubs, lidar_pub, radar_pub):
     # Desktop VM
-    #ip = '192.168.0.116'
+    # ip = '192.168.0.116'
 
     # Docker Container
     ip = '172.18.0.22'
@@ -155,22 +144,18 @@ def serve(camera_pubs, lidar_pub, radar_pub):
 
 if __name__ == '__main__':
 
-    # Topics:
-    # /EO/F/image_raw 
-    # /EO/FR/image_raw 
-    # /EO/RR/image_raw 
-    # /EO/RL/image_raw 
-    # /EO/FL/image_raw 
     cam_ids = ["F", "FL", "FR", "RL", "RR"]
     camera_pubs = dict()
     for cam_id in cam_ids:
         camera_pubs[cam_id] = rospy.Publisher('EO/' + cam_id + '/image_raw',
-                                               Image, queue_size=10)
+                                              Image, queue_size=10)
 
     lidar_pub = rospy.Publisher('velodyne_points', PointCloud2, queue_size=10)
 
     # TODO: Change the message type to be published
-    radar_pub = rospy.Publisher('radar/driver/spokes', RadarSpoke, queue_size=10)
+    radar_pub = rospy.Publisher('radar/driver/spokes', 
+                                RadarSpoke, 
+                                queue_size=10)
 
     rospy.init_node('syntetic_data', anonymous=True)
     serve(camera_pubs, lidar_pub, radar_pub)
