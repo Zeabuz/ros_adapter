@@ -19,8 +19,6 @@ from sensor_streaming import sensor_streaming_pb2_grpc
 
 import numpy as np
 
-import pdb
-
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
     def __init__(self, camera_pubs, lidar_pub, radar_pub):
         print("creating")
