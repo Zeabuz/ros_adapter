@@ -19,6 +19,7 @@ from sensor_streaming import sensor_streaming_pb2_grpc
 
 import numpy as np
 
+import pdb
 
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
     def __init__(self, camera_pubs, lidar_pub, radar_pub):
@@ -128,10 +129,10 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
 def serve(camera_pubs, lidar_pub, radar_pub):
     # Desktop VM
-    # ip = '192.168.0.116'
+    ip = '192.168.0.116'
 
     # Docker Container
-    ip = '172.18.0.22'
+    #ip = '172.18.0.22'
 
     port = '30052'
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
