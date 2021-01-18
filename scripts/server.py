@@ -41,10 +41,17 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         cv_image = cv_image.reshape(request.height, request.width, 3)
         cv_image = cv2.flip(cv_image, 0)
 
+        bgr_image = cv2.cvtColor(cv_image, cv2.COLOR_RGB2BGR)
+
         msg = Image()
         header = std_msgs.msg.Header()
         try:
-            msg = self.bridge.cv2_to_imgmsg(cv_image, 'rgb8')
+            # RGB
+            #msg = self.bridge.cv2_to_imgmsg(cv_image, 'rgb8')
+
+            # BGR
+            msg = self.bridge.cv2_to_imgmsg(bgr_image, 'bgr8')
+
             header.stamp = rospy.Time.from_sec(request.timeStamp)
             msg.header = header
         except CvBridgeError as e:
