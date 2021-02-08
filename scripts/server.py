@@ -3,6 +3,7 @@
 from concurrent import futures
 
 import rospy
+import roslib
 
 import std_msgs.msg
 from sensor_msgs.msg import Image
@@ -37,14 +38,21 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
         cv_image = np.fromstring(img_string, np.uint8)
 
-        # Backward for some wierd reason
+        # NOTE, the height is specifiec as a parameter before the width
         cv_image = cv_image.reshape(request.height, request.width, 3)
         cv_image = cv2.flip(cv_image, 0)
+
+        bgr_image = cv2.cvtColor(cv_image, cv2.COLOR_RGB2BGR)
 
         msg = Image()
         header = std_msgs.msg.Header()
         try:
-            msg = self.bridge.cv2_to_imgmsg(cv_image, 'rgb8')
+            # RGB
+            #msg = self.bridge.cv2_to_imgmsg(cv_image, 'rgb8')
+
+            # BGR
+            msg = self.bridge.cv2_to_imgmsg(bgr_image, 'bgr8')
+
             header.stamp = rospy.Time.from_sec(request.timeStamp)
             msg.header = header
         except CvBridgeError as e:
@@ -100,7 +108,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         all the data needed to create and publish a RadarSpoke
         ROS message.
         """
-
+        
         number_of_spokes = request.numSpokes
 
         for i in range(number_of_spokes):
@@ -125,23 +133,22 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         return sensor_streaming_pb2.RadarStreamingResponse(success=True)
 
 
-def serve(camera_pubs, lidar_pub, radar_pub):
-    # Desktop VM
-    ip = '192.168.0.116'
+def serve(server_ip, server_port, camera_pubs, lidar_pub, radar_pub):
 
-    # Docker Container
-    #ip = '172.18.0.22'
-
-    port = '30052'
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pubs, lidar_pub, radar_pub), server)
-    server.add_insecure_port(ip + ':' + port)
-    print(ip + ":" + port)
+    server.add_insecure_port(server_ip + ':' + str(server_port))
+    print(server_ip + ":" + str(server_port))
     server.start()
     server.wait_for_termination()
 
 
 if __name__ == '__main__':
+
+    rospy.init_node('syntetic_data', anonymous=True)
+    server_params = rospy.get_param('~')
+    server_ip = server_params["server_ip"]
+    server_port = server_params["server_port"]
 
     cam_ids = ["F", "FL", "FR", "RL", "RR"]
     camera_pubs = dict()
@@ -156,5 +163,4 @@ if __name__ == '__main__':
                                 RadarSpoke, 
                                 queue_size=10)
 
-    rospy.init_node('syntetic_data', anonymous=True)
-    serve(camera_pubs, lidar_pub, radar_pub)
+    serve(server_ip, server_port, camera_pubs, lidar_pub, radar_pub)
