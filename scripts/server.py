@@ -3,6 +3,7 @@
 from concurrent import futures
 
 import rospy
+import roslib
 
 import std_msgs.msg
 from sensor_msgs.msg import Image
@@ -132,26 +133,22 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         return sensor_streaming_pb2.RadarStreamingResponse(success=True)
 
 
-def serve(camera_pubs, lidar_pub, radar_pub):
-    # Linux Desktop
-    ip = '127.0.0.1'
+def serve(server_ip, server_port, camera_pubs, lidar_pub, radar_pub):
 
-    # Desktop VM
-    #ip = '192.168.0.116'
-
-    # Docker Container
-    #ip = '172.18.0.22'
-
-    port = '30052'
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pubs, lidar_pub, radar_pub), server)
-    server.add_insecure_port(ip + ':' + port)
-    print(ip + ":" + port)
+    server.add_insecure_port(server_ip + ':' + str(server_port))
+    print(server_ip + ":" + str(server_port))
     server.start()
     server.wait_for_termination()
 
 
 if __name__ == '__main__':
+
+    rospy.init_node('syntetic_data', anonymous=True)
+    server_params = rospy.get_param('~')
+    server_ip = server_params["server_ip"]
+    server_port = server_params["server_port"]
 
     cam_ids = ["F", "FL", "FR", "RL", "RR"]
     camera_pubs = dict()
@@ -166,5 +163,4 @@ if __name__ == '__main__':
                                 Image, 
                                 queue_size=10)
 
-    rospy.init_node('syntetic_data', anonymous=True)
-    serve(camera_pubs, lidar_pub, radar_pub)
+    serve(server_ip, server_port, camera_pubs, lidar_pub, radar_pub)

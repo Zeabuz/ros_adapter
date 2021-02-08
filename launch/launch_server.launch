@@ -1,5 +1,6 @@
 
 <launch>
-    <node ns="/" name="syntetic_data" pkg="ros_adapter" type="server.py" output="screen">
+    <node ns="/" name="adapter_server" pkg="ros_adapter" type="server.py" output="screen">
+        <rosparam file="$(find ros_adapter)/config/server.yaml" command="load" />
     </node>
 </launch>
