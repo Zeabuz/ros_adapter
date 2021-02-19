@@ -4,6 +4,7 @@ from concurrent import futures
 
 import rospy
 import roslib
+from rosgraph_msgs.msg import Clock
 
 import std_msgs.msg
 from sensor_msgs.msg import Image
@@ -21,12 +22,13 @@ from sensor_streaming import sensor_streaming_pb2_grpc
 import numpy as np
 
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
-    def __init__(self, camera_pubs, lidar_pub, radar_pub):
+    def __init__(self, camera_pubs, lidar_pub, radar_pub, clock_pub):
         print("creating")
         self.bridge = CvBridge()
         self.camera_pubs = camera_pubs
         self.lidar_pub = lidar_pub
         self.radar_pub = radar_pub
+        self.clock_pub = clock_pub
 
     def StreamCameraSensor(self, request, context):
         """
@@ -99,6 +101,12 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
         self.lidar_pub.publish(pointcloud_msg)
 
+        # TODO: This does not belong in this RPC implementation, should be moved to own
+        # or something like that.
+        sim_clock = Clock()
+        sim_clock.clock = rospy.Time.from_sec(request.timeInSeconds)
+        self.clock_pub.publish(sim_clock)
+
         return sensor_streaming_pb2.LidarStreamingResponse(success=True)
 
 
@@ -133,10 +141,14 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         return sensor_streaming_pb2.RadarStreamingResponse(success=True)
 
 
-def serve(server_ip, server_port, camera_pubs, lidar_pub, radar_pub):
+def serve(server_ip, server_port, camera_pubs, lidar_pub, radar_pub, clock_pub):
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pubs, lidar_pub, radar_pub), server)
+
+    sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(
+            SensorStreaming(camera_pubs, lidar_pub, radar_pub, clock_pub),
+            server)
+
     server.add_insecure_port(server_ip + ':' + str(server_port))
     print(server_ip + ":" + str(server_port))
     server.start()
@@ -156,11 +168,13 @@ if __name__ == '__main__':
         camera_pubs[cam_id] = rospy.Publisher('EO/' + cam_id + '/image_raw',
                                               Image, queue_size=10)
 
-    lidar_pub = rospy.Publisher('velodyne_points', PointCloud2, queue_size=10)
+    lidar_pub = rospy.Publisher('lidar/driver/velodyne_points', PointCloud2, queue_size=10)
 
     # TODO: Change the message type to be published
     radar_pub = rospy.Publisher('radar/driver/spokes', 
                                 RadarSpoke, 
                                 queue_size=10)
 
-    serve(server_ip, server_port, camera_pubs, lidar_pub, radar_pub)
+    clock_pub = rospy.Publisher('clock', Clock, queue_size=10)
+
+    serve(server_ip, server_port, camera_pubs, lidar_pub, radar_pub, clock_pub)
