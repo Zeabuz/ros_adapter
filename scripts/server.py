@@ -18,6 +18,8 @@ import cv2
 
 from sensor_streaming import sensor_streaming_pb2
 from sensor_streaming import sensor_streaming_pb2_grpc
+from navigation import navigation_pb2
+from navigation import navigation_pb2_grpc
 
 import numpy as np
 
