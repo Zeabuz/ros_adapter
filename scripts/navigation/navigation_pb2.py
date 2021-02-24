@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\033io.grpc.examples.navigationB\nNavigationP\001\242\002\003HLW',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x10navigation.proto\x12\nnavigation\"\'\n\x04Vec3\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\"8\n\nQuaternion\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\x12\t\n\x01w\x18\x04 \x01(\x02\"\xb9\x01\n\x11NavigationRequest\x12\"\n\x08position\x18\x01 \x01(\x0b\x32\x10.navigation.Vec3\x12+\n\x0borientation\x18\x02 \x01(\x0b\x32\x16.navigation.Quaternion\x12(\n\x0elinearVelocity\x18\x03 \x01(\x0b\x32\x10.navigation.Vec3\x12)\n\x0f\x61ngularVelocity\x18\x04 \x01(\x0b\x32\x10.navigation.Vec3\"%\n\x12NavigationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\x66\n\nNavigation\x12X\n\x15SendNavigationMessage\x12\x1d.navigation.NavigationRequest\x1a\x1e.navigation.NavigationResponse\"\x00\x42\x31\n\x1bio.grpc.examples.navigationB\nNavigationP\x01\xa2\x02\x03HLWb\x06proto3'
+  serialized_pb=b'\n\x10navigation.proto\x12\nnavigation\"\'\n\x04Vec3\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\"8\n\nQuaternion\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\x12\t\n\x01w\x18\x04 \x01(\x02\"\xcc\x01\n\x11NavigationRequest\x12\x11\n\ttimeStamp\x18\x01 \x01(\x01\x12\"\n\x08position\x18\x02 \x01(\x0b\x32\x10.navigation.Vec3\x12+\n\x0borientation\x18\x03 \x01(\x0b\x32\x16.navigation.Quaternion\x12(\n\x0elinearVelocity\x18\x04 \x01(\x0b\x32\x10.navigation.Vec3\x12)\n\x0f\x61ngularVelocity\x18\x05 \x01(\x0b\x32\x10.navigation.Vec3\"%\n\x12NavigationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\x66\n\nNavigation\x12X\n\x15SendNavigationMessage\x12\x1d.navigation.NavigationRequest\x1a\x1e.navigation.NavigationResponse\"\x00\x42\x31\n\x1bio.grpc.examples.navigationB\nNavigationP\x01\xa2\x02\x03HLWb\x06proto3'
 )
 
 
@@ -133,29 +133,36 @@ _NAVIGATIONREQUEST = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='position', full_name='navigation.NavigationRequest.position', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='timeStamp', full_name='navigation.NavigationRequest.timeStamp', index=0,
+      number=1, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='orientation', full_name='navigation.NavigationRequest.orientation', index=1,
+      name='position', full_name='navigation.NavigationRequest.position', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='linearVelocity', full_name='navigation.NavigationRequest.linearVelocity', index=2,
+      name='orientation', full_name='navigation.NavigationRequest.orientation', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='angularVelocity', full_name='navigation.NavigationRequest.angularVelocity', index=3,
+      name='linearVelocity', full_name='navigation.NavigationRequest.linearVelocity', index=3,
       number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='angularVelocity', full_name='navigation.NavigationRequest.angularVelocity', index=4,
+      number=5, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -173,7 +180,7 @@ _NAVIGATIONREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=132,
-  serialized_end=317,
+  serialized_end=336,
 )
 
 
@@ -204,8 +211,8 @@ _NAVIGATIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=319,
-  serialized_end=356,
+  serialized_start=338,
+  serialized_end=375,
 )
 
 _NAVIGATIONREQUEST.fields_by_name['position'].message_type = _VEC3
@@ -256,8 +263,8 @@ _NAVIGATION = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=358,
-  serialized_end=460,
+  serialized_start=377,
+  serialized_end=479,
   methods=[
   _descriptor.MethodDescriptor(
     name='SendNavigationMessage',
