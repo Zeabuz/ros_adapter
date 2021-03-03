@@ -156,9 +156,9 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
 
     def SendNavigationMessage(self, request, context):
 
-        # TODO: The frame_id should probably be defined in Unity?
+        # TODO: This frame_id should be dynamically set from a config file.
         nav_header = std_msgs.msg.Header(
-            frame_id="piren",
+            frame_id="fosenkaia_NED",
             stamp=rospy.Time.from_sec(request.timeStamp)
         )
 
