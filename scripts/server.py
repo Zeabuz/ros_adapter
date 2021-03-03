@@ -4,6 +4,12 @@ from concurrent import futures
 
 import rospy
 import roslib
+from rosgraph_msgs.msg import Clock
+
+import geometry_msgs.msg as geomsgs
+
+import tf2_ros
+import tf.transformations as tftrans
 
 import std_msgs.msg
 from sensor_msgs.msg import Image
@@ -17,16 +23,20 @@ import cv2
 
 from sensor_streaming import sensor_streaming_pb2
 from sensor_streaming import sensor_streaming_pb2_grpc
+from navigation import navigation_pb2
+from navigation import navigation_pb2_grpc
 
 import numpy as np
 
+
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
-    def __init__(self, camera_pubs, lidar_pub, radar_pub):
+    def __init__(self, camera_pubs, lidar_pub, radar_pub, clock_pub):
         print("creating")
         self.bridge = CvBridge()
         self.camera_pubs = camera_pubs
         self.lidar_pub = lidar_pub
         self.radar_pub = radar_pub
+        self.clock_pub = clock_pub
 
     def StreamCameraSensor(self, request, context):
         """
@@ -48,7 +58,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         header = std_msgs.msg.Header()
         try:
             # RGB
-            #msg = self.bridge.cv2_to_imgmsg(cv_image, 'rgb8')
+            # msg = self.bridge.cv2_to_imgmsg(cv_image, 'rgb8')
 
             # BGR
             msg = self.bridge.cv2_to_imgmsg(bgr_image, 'bgr8')
@@ -72,7 +82,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         pointcloud_msg = PointCloud2()
         header = std_msgs.msg.Header()
         header.stamp = rospy.Time.from_sec(request.timeInSeconds)
-        
+
         header.frame_id = "velodyne"
         pointcloud_msg.header = header
 
@@ -99,8 +109,13 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
         self.lidar_pub.publish(pointcloud_msg)
 
-        return sensor_streaming_pb2.LidarStreamingResponse(success=True)
+        # TODO: This does not belong in this RPC implementation, should be
+        # moved to own or something like that.
+        sim_clock = Clock()
+        sim_clock.clock = rospy.Time.from_sec(request.timeInSeconds)
+        self.clock_pub.publish(sim_clock)
 
+        return sensor_streaming_pb2.LidarStreamingResponse(success=True)
 
     def StreamRadarSensor(self, request, context):
         """
@@ -133,10 +148,89 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         return sensor_streaming_pb2.RadarStreamingResponse(success=True)
 
 
-def serve(server_ip, server_port, camera_pubs, lidar_pub, radar_pub):
+class Navigation(navigation_pb2_grpc.NavigationServicer):
+    def __init__(self, pose_pub, twist_pub, tf_pub):
+        self.pose_pub = pose_pub
+        self.twist_pub = twist_pub
+        self.tf_pub = tf_pub
+
+    def SendNavigationMessage(self, request, context):
+
+        # TODO: This frame_id should be dynamically set from a config file.
+        nav_header = std_msgs.msg.Header(
+            frame_id="fosenkaia_NED",
+            stamp=rospy.Time.from_sec(request.timeStamp)
+        )
+
+        position = geomsgs.Point()
+        position.x = request.position.x
+        position.y = request.position.y
+        position.z = request.position.z
+
+        orientation = geomsgs.Quaternion()
+        orientation.x = request.orientation.x
+        orientation.y = request.orientation.y
+        orientation.z = request.orientation.z
+        orientation.w = request.orientation.w
+
+        pose_msg = geomsgs.PoseStamped(
+            header=nav_header,
+            pose=geomsgs.Pose(
+                position=position,
+                orientation=orientation
+            )
+        )
+
+        pose_pub.publish(pose_msg)
+
+        linear_vel = geomsgs.Vector3()
+        linear_vel.x = request.linearVelocity.x
+        linear_vel.y = request.linearVelocity.y
+        linear_vel.z = request.linearVelocity.z
+
+        angular_vel = geomsgs.Vector3()
+        angular_vel.x = request.angularVelocity.x
+        angular_vel.y = request.angularVelocity.y
+        angular_vel.z = request.angularVelocity.z
+
+        twist_msg = geomsgs.TwistStamped(
+            header=nav_header,
+            twist=geomsgs.Twist(
+                linear=linear_vel,
+                angular=angular_vel
+            )
+        )
+
+        twist_pub.publish(twist_msg)
+
+        transform = geomsgs.TransformStamped(
+            header=nav_header,
+            child_frame_id="vessel_center",
+            transform=geomsgs.Transform(
+                translation=position,
+                rotation=orientation
+            )
+        )
+
+        tf_pub.sendTransform(transform)
+
+        return navigation_pb2.NavigationResponse(success=True)
+
+
+def serve(server_ip, server_port, camera_pubs,
+          lidar_pub, radar_pub, clock_pub,
+          pose_pub, twist_pub, tf_pub):
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(SensorStreaming(camera_pubs, lidar_pub, radar_pub), server)
+
+    sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(
+            SensorStreaming(camera_pubs, lidar_pub, radar_pub, clock_pub),
+            server)
+
+    navigation_pb2_grpc.add_NavigationServicer_to_server(
+        Navigation(pose_pub, twist_pub, tf_pub),
+        server)
+
     server.add_insecure_port(server_ip + ':' + str(server_port))
     print(server_ip + ":" + str(server_port))
     server.start()
@@ -156,11 +250,23 @@ if __name__ == '__main__':
         camera_pubs[cam_id] = rospy.Publisher('EO/' + cam_id + '/image_raw',
                                               Image, queue_size=10)
 
-    lidar_pub = rospy.Publisher('velodyne_points', PointCloud2, queue_size=10)
-
-    # TODO: Change the message type to be published
-    radar_pub = rospy.Publisher('radar/driver/spokes', 
-                                RadarSpoke, 
+    lidar_pub = rospy.Publisher('lidar/driver/velodyne_points',
+                                PointCloud2,
                                 queue_size=10)
 
-    serve(server_ip, server_port, camera_pubs, lidar_pub, radar_pub)
+    # TODO: Change the message type to be published
+    radar_pub = rospy.Publisher('radar/driver/spokes',
+                                RadarSpoke,
+                                queue_size=10)
+
+    clock_pub = rospy.Publisher('clock', Clock, queue_size=10)
+
+    pose_pub = rospy.Publisher('milliampere/pose', geomsgs.PoseStamped, queue_size=10)
+
+    twist_pub = rospy.Publisher('milliampere/twist', geomsgs.TwistStamped, queue_size=10)
+
+    tf_pub = tf2_ros.TransformBroadcaster()
+
+    serve(server_ip, server_port, camera_pubs,
+          lidar_pub, radar_pub, clock_pub,
+          pose_pub, twist_pub, tf_pub)
