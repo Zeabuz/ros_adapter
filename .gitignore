@@ -1,4 +1,5 @@
 venv/
+new_venv/
 .vscode/
 *__pycache__/
 *.pyc
