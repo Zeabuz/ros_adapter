@@ -161,7 +161,7 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
             frame_id="fosenkaia_NED",
             stamp=rospy.Time.from_sec(request.timeStamp)
         )
-
+        
         position = geomsgs.Point()
         position.x = request.position.x
         position.y = request.position.y
@@ -193,6 +193,9 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
         angular_vel.y = request.angularVelocity.y
         angular_vel.z = request.angularVelocity.z
 
+        vessel_name = request.vesselName
+        print("VesselName: ", vesselName)
+    
         twist_msg = geomsgs.TwistStamped(
             header=nav_header,
             twist=geomsgs.Twist(
