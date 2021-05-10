@@ -244,26 +244,27 @@ if __name__ == '__main__':
     server_ip = server_params["server_ip"]
     server_port = server_params["server_port"]
 
-    cam_ids = ["F", "FL", "FR", "RL", "RR"]
+    cam_ids = server_params['camera_ids']
     camera_pubs = dict()
     for cam_id in cam_ids:
-        camera_pubs[cam_id] = rospy.Publisher('EO/' + cam_id + '/image_raw',
+        camera_pubs[cam_id] = rospy.Publisher(server_params['camera_prefix'] + 
+                                              cam_id + 
+                                              server_params['camera_postfix'],
                                               Image, queue_size=10)
 
-    lidar_pub = rospy.Publisher('lidar/driver/velodyne_points',
+    lidar_pub = rospy.Publisher(server_params['lidar_topic'],
                                 PointCloud2,
                                 queue_size=10)
 
-    # TODO: Change the message type to be published
-    radar_pub = rospy.Publisher('radar/driver/spokes',
+    radar_pub = rospy.Publisher(server_params['radar_topic'],
                                 RadarSpoke,
                                 queue_size=10)
 
     clock_pub = rospy.Publisher('clock', Clock, queue_size=10)
 
-    pose_pub = rospy.Publisher('milliampere/pose', geomsgs.PoseStamped, queue_size=10)
+    pose_pub = rospy.Publisher(server_params['pose_topic'], geomsgs.PoseStamped, queue_size=10)
 
-    twist_pub = rospy.Publisher('milliampere/twist', geomsgs.TwistStamped, queue_size=10)
+    twist_pub = rospy.Publisher(server_params['twist_topic'], geomsgs.TwistStamped, queue_size=10)
 
     tf_pub = tf2_ros.TransformBroadcaster()
 
