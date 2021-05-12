@@ -194,7 +194,6 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
         angular_vel.z = request.angularVelocity.z
 
         vessel_name = request.vesselName
-        print("VesselName: ", vesselName)
     
         twist_msg = geomsgs.TwistStamped(
             header=nav_header,
