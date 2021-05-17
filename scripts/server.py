@@ -149,8 +149,11 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
 
 class Navigation(navigation_pb2_grpc.NavigationServicer):
-    def __init__(self, pose_pub, twist_pub, tf_pub):
-        self.pose_pub = pose_pub
+    def __init__(self, pose_pub_ma, pose_pub_finn, pos_pub_havfruen,
+                 twist_pub, tf_pub):
+        self.pose_pub_ma = pose_pub_ma
+        self.pose_pub_finn = pose_pub_finn
+        self.pose_pub_havfruen = pose_pub_havfruen
         self.twist_pub = twist_pub
         self.tf_pub = tf_pub
 
@@ -181,7 +184,14 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
             )
         )
 
-        pose_pub.publish(pose_msg)
+        vessel_name = request.vesselName
+        
+        if vessel_name == "ma":
+            pose_pub_ma.publish(pose_msg)
+        elif vessel_name == "finn":
+            pose_pub_finn.publish(pose_msg)
+        elif vessel_name == "havfruen":
+            pose_pub_havfruen.publish(pose_msg)
 
         linear_vel = geomsgs.Vector3()
         linear_vel.x = request.linearVelocity.x
@@ -193,7 +203,6 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
         angular_vel.y = request.angularVelocity.y
         angular_vel.z = request.angularVelocity.z
 
-        vessel_name = request.vesselName
     
         twist_msg = geomsgs.TwistStamped(
             header=nav_header,
@@ -205,14 +214,29 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
 
         twist_pub.publish(twist_msg)
 
-        transform = geomsgs.TransformStamped(
-            header=nav_header,
-            child_frame_id="vessel_center",
-            transform=geomsgs.Transform(
+        transform = geomsgs.TransformStamped()
+        transform.header = nav_header
+        
+        if vessel_name == "havfruen":
+            transform.child_frame_id = "havfruen_vessel_center"
+        elif vessel_name == "finn":
+            transform.child_frame_id = "finn_vessel_center"
+        else:
+            transform.child_frame_id = "vessel_center"
+
+        transform.transform=geomsgs.Transform(
                 translation=position,
                 rotation=orientation
-            )
-        )
+                )
+
+#        transform = geomsgs.TransformStamped(
+#            header=nav_header,
+#            child_frame_id="vessel_center",
+#            transform=geomsgs.Transform(
+#                translation=position,
+#                rotation=orientation
+#            )
+#        )
 
         tf_pub.sendTransform(transform)
 
@@ -221,7 +245,8 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
 
 def serve(server_ip, server_port, camera_pubs,
           lidar_pub, radar_pub, clock_pub,
-          pose_pub, twist_pub, tf_pub):
+          pose_pub_ma, pose_pub_finn,
+          pose_pub_havfruen, twist_pub, tf_pub):
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
 
@@ -230,7 +255,8 @@ def serve(server_ip, server_port, camera_pubs,
             server)
 
     navigation_pb2_grpc.add_NavigationServicer_to_server(
-        Navigation(pose_pub, twist_pub, tf_pub),
+        Navigation(pose_pub_ma, pose_pub_finn, 
+                   pose_pub_havfruen,twist_pub, tf_pub),
         server)
 
     server.add_insecure_port(server_ip + ':' + str(server_port))
@@ -264,7 +290,9 @@ if __name__ == '__main__':
 
     clock_pub = rospy.Publisher('clock', Clock, queue_size=10)
 
-    pose_pub = rospy.Publisher(server_params['pose_topic'], geomsgs.PoseStamped, queue_size=10)
+    pose_pub_ma = rospy.Publisher(server_params['pose_topic'], geomsgs.PoseStamped, queue_size=10)
+    pose_pub_finn = rospy.Publisher("/finn/pose", geomsgs.PoseStamped, queue_size=10)
+    pose_pub_havfruen = rospy.Publisher("/havfruen/pose", geomsgs.PoseStamped, queue_size=10)
 
     twist_pub = rospy.Publisher(server_params['twist_topic'], geomsgs.TwistStamped, queue_size=10)
 
@@ -272,4 +300,5 @@ if __name__ == '__main__':
 
     serve(server_ip, server_port, camera_pubs,
           lidar_pub, radar_pub, clock_pub,
-          pose_pub, twist_pub, tf_pub)
+          pose_pub_ma, pose_pub_finn, 
+          pose_pub_havfruen, twist_pub, tf_pub)
