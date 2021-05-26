@@ -27,7 +27,7 @@ from navigation import navigation_pb2
 from navigation import navigation_pb2_grpc
 
 import numpy as np
-
+import pdb
 
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
     def __init__(self, camera_pubs, lidar_pub, radar_pub, clock_pub):
@@ -161,9 +161,12 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
 
         # TODO: This frame_id should be dynamically set from a config file.
         nav_header = std_msgs.msg.Header(
-            frame_id="piren",
+            frame_id=simulation_params["geo_frame"],
             stamp=rospy.Time.from_sec(request.timeStamp)
         )
+
+        transform = geomsgs.TransformStamped()
+        transform.header = nav_header
         
         position = geomsgs.Point()
         position.x = request.position.x
@@ -184,7 +187,24 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
             )
         )
 
-        target_pose_pubs[request.vesselName].publish(pose_msg)
+        #pdb.set_trace()
+
+        transform.transform=geomsgs.Transform(
+                translation=position,
+                rotation=orientation
+                )
+
+        vessel_name = request.vesselName
+        
+        if vessel_name == "ego":
+            ego_pose_pub.publish(pose_msg)
+            transform.child_frame_id = "vessel_center"
+        else:
+            transform.child_frame_id = simulation_params["target_vessel_center_names"][vessel_name]
+            target_pose_pubs[request.vesselName].publish(pose_msg)
+
+
+        tf_pub.sendTransform(transform)
 
         linear_vel = geomsgs.Vector3()
         linear_vel.x = request.linearVelocity.x
@@ -206,34 +226,6 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
         )
 
         ego_twist_pub.publish(twist_msg)
-
-        transform = geomsgs.TransformStamped()
-        transform.header = nav_header
-
-        vessel_name = request.vesselName
-
-        if vessel_name == "havfruen":
-            transform.child_frame_id = "havfruen_vessel_center"
-        elif vessel_name == "finn":
-            transform.child_frame_id = "finn_vessel_center"
-        else:
-            transform.child_frame_id = "vessel_center"
-
-        transform.transform=geomsgs.Transform(
-                translation=position,
-                rotation=orientation
-                )
-
-#        transform = geomsgs.TransformStamped(
-#            header=nav_header,
-#            child_frame_id="vessel_center",
-#            transform=geomsgs.Transform(
-#                translation=position,
-#                rotation=orientation
-#            )
-#        )
-
-        tf_pub.sendTransform(transform)
 
         return navigation_pb2.NavigationResponse(success=True)
 
@@ -305,11 +297,6 @@ if __name__ == '__main__':
                 queue_size=10)
 
     tf_pub = tf2_ros.TransformBroadcaster()
-
-    #serve(server_ip, server_port, camera_pubs,
-    #      lidar_pub, radar_pub, clock_pub,
-    #      pose_pub_ma, pose_pub_finn, 
-    #      pose_pub_havfruen, twist_pub, tf_pub)
 
     serve(server_ip, server_port, camera_pubs,
           lidar_pub, radar_pub, clock_pub,
