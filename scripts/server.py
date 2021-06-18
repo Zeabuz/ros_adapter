@@ -37,7 +37,6 @@ import pdb
 
 class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
     def __init__(self, camera_pubs, lidar_pub, radar_pub, clock_pub):
-        print("creating")
         self.bridge = CvBridge()
         self.camera_pubs = camera_pubs
         self.lidar_pub = lidar_pub
@@ -54,7 +53,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
         cv_image = np.fromstring(img_string, np.uint8)
 
-        # NOTE, the height is specifiec as a parameter before the width
+        # NOTE, the height is specified before the width
         cv_image = cv_image.reshape(request.height, request.width, 3)
         cv_image = cv2.flip(cv_image, 0)
 
@@ -97,7 +96,6 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
         fields = request.fields
 
-        # Set PointCloud[] fields in pointcloud_msg
         for i in range(len(fields)):
             pointcloud_msg.fields.append(PointField())
             pointcloud_msg.fields[i].name = fields[i].name
@@ -115,8 +113,6 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
         self.lidar_pub.publish(pointcloud_msg)
 
-        # TODO: This does not belong in this RPC implementation, should be
-        # moved to own or something like that.
         sim_clock = Clock()
         sim_clock.clock = rospy.Time.from_sec(request.timeInSeconds)
         self.clock_pub.publish(sim_clock)
@@ -136,7 +132,6 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
             radar_spoke_msg = RadarSpoke()
 
-            # Header
             header = std_msgs.msg.Header()
             header.frame_id = "milliampere_radar"
             header.stamp = rospy.Time.from_sec(request.timeInSeconds[i])
@@ -167,7 +162,6 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
 
     def SendNavigationMessage(self, request, context):
 
-        # TODO: This frame_id should be dynamically set from a config file.
         nav_header = std_msgs.msg.Header(
             frame_id=simulation_params["scenario" + scenario_id]["geo_frame"],
             stamp=rospy.Time.from_sec(request.timeStamp)
