@@ -1,20 +1,10 @@
 <launch>
-    <param name="use_sim_time" value="true" />
-    <group if="$(eval arg('ego_vessel_name') == 'ma1')">
-        <node ns="/" name="adapter_server" pkg="ros_adapter" type="server.py" output="screen">
-            <rosparam file="$(find ros_adapter_config)/config/server.yaml" command="load" />
-            <rosparam file="$(find ros_adapter_config)/config/scenario.yaml" command="load" />
-            <rosparam file="$(find ros_adapter_config)/config/ma1.yaml" command="load" />
-            <rosparam file="$(find ros_adapter_config)/config/targets.yaml" command="load" />
-        </node>
-    </group>
 
-    <group if="$(eval arg('ego_vessel_name') == 'ma2')">
-        <node ns="/" name="adapter_server" pkg="ros_adapter" type="server.py" output="screen">
-            <rosparam file="$(find ros_adapter_config)/config/server.yaml" command="load" />
-            <rosparam file="$(find ros_adapter_config)/config/scenario.yaml" command="load" />
-            <rosparam file="$(find ros_adapter_config)/config/ma2.yaml" command="load" />
-            <rosparam file="$(find ros_adapter_config)/config/targets.yaml" command="load" />
-        </node>
-    </group>
+    <param name="use_sim_time" value="true" />
+
+    <arg name="config_files_dir" />
+    <arg name="scenario_id" />
+
+    <node ns="/" name="adapter_server" pkg="ros_adapter" type="server.py" output="screen" args="$(arg config_files_dir) $(arg scenario_id)" />
+
 </launch>
