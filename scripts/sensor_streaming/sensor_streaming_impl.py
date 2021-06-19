@@ -10,10 +10,17 @@ from sensor_msgs.msg import PointCloud2, PointField
 from ros_adapter.msg import RadarSpoke
 from cv_bridge import CvBridge, CvBridgeError
 
-from sensor_streaming import sensor_streaming_pb2
-from sensor_streaming import sensor_streaming_pb2_grpc
+import sensor_streaming.sensor_streaming_pb2 
+import sensor_streaming.sensor_streaming_pb2_grpc
 
-class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
+from sensor_streaming.sensor_streaming_pb2 import CameraStreamingResponse
+from sensor_streaming.sensor_streaming_pb2 import LidarStreamingResponse
+from sensor_streaming.sensor_streaming_pb2 import RadarStreamingResponse
+
+from sensor_streaming.sensor_streaming_pb2_grpc import SensorStreamingServicer
+
+
+class SensorStreaming(SensorStreamingServicer):
     def __init__(self, camera_pubs, lidar_pub, radar_pub, clock_pub):
         self.bridge = CvBridge()
         self.camera_pubs = camera_pubs
@@ -53,7 +60,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
         self.camera_pubs[request.frame_id.encode("ascii", 'ignore')].publish(msg)
 
-        return sensor_streaming_pb2.CameraStreamingResponse(success=True)
+        return CameraStreamingResponse(success=True)
 
     def StreamLidarSensor(self, request, context):
         """
@@ -95,7 +102,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
         sim_clock.clock = rospy.Time.from_sec(request.timeInSeconds)
         self.clock_pub.publish(sim_clock)
 
-        return sensor_streaming_pb2.LidarStreamingResponse(success=True)
+        return LidarStreamingResponse(success=True)
 
     def StreamRadarSensor(self, request, context):
         """
@@ -126,4 +133,4 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
             self.radar_pub.publish(radar_spoke_msg)
 
-        return sensor_streaming_pb2.RadarStreamingResponse(success=True)
+        return RadarStreamingResponse(success=True)
