@@ -10,9 +10,6 @@ from sensor_msgs.msg import PointCloud2, PointField
 from ros_adapter.msg import RadarSpoke
 from cv_bridge import CvBridge, CvBridgeError
 
-import sensor_streaming.sensor_streaming_pb2 
-import sensor_streaming.sensor_streaming_pb2_grpc
-
 from sensor_streaming.sensor_streaming_pb2 import CameraStreamingResponse
 from sensor_streaming.sensor_streaming_pb2 import LidarStreamingResponse
 from sensor_streaming.sensor_streaming_pb2 import RadarStreamingResponse
@@ -58,7 +55,7 @@ class SensorStreaming(SensorStreamingServicer):
         except CvBridgeError as e:
             print(e)
 
-        self.camera_pubs[request.frame_id.encode("ascii", 'ignore')].publish(msg)
+        self.camera_pubs[request.frame_id].publish(msg)
 
         return CameraStreamingResponse(success=True)
 
