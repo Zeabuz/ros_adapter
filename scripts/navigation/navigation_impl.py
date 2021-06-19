@@ -2,12 +2,12 @@ import rospy
 import std_msgs.msg
 import geometry_msgs.msg as geomsgs
 
-import navigation_pb2
-import navigation_pb2_grpc
-import pdb
+import navigation.navigation_pb2
+import navigation.navigation_pb2_grpc
 
+from navigation.navigation_pb2 import NavigationResponse
 
-class Navigation(navigation_pb2_grpc.NavigationServicer):
+class Navigation(navigation.navigation_pb2_grpc.NavigationServicer):
     def __init__(self, ego_pose_pub, target_pose_pubs,
                  ego_twist_pub, target_twist_pubs,
                  tf_pub, simulation_params, scenario_id):
@@ -84,4 +84,4 @@ class Navigation(navigation_pb2_grpc.NavigationServicer):
 
         self.ego_twist_pub.publish(twist_msg)
 
-        return navigation_pb2.NavigationResponse(success=True)
+        return NavigationResponse(success=True)
