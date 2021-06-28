@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import sys
 import yaml
@@ -27,13 +27,13 @@ import cv2
 
 from config import parser
 
-from sensor_streaming import sensor_streaming_pb2
-from sensor_streaming import sensor_streaming_pb2_grpc
-from sensor_streaming import sensor_streaming_impl
 
-from navigation import navigation_pb2
-from navigation import navigation_pb2_grpc
-from navigation import navigation_impl
+from sensor_streaming.sensor_streaming_pb2_grpc import add_SensorStreamingServicer_to_server
+from sensor_streaming.sensor_streaming_impl import SensorStreaming
+
+
+from navigation.navigation_pb2_grpc import add_NavigationServicer_to_server
+from navigation.navigation_impl import Navigation
 
 import numpy as np
 
@@ -46,12 +46,12 @@ def serve(server_ip, server_port, camera_pubs,
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
 
-    sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(
-            sensor_streaming_impl.SensorStreaming(camera_pubs, lidar_pub, radar_pub, clock_pub),
-            server)
+    add_SensorStreamingServicer_to_server(
+        SensorStreaming(camera_pubs, lidar_pub, radar_pub, clock_pub),
+        server)
 
-    navigation_pb2_grpc.add_NavigationServicer_to_server(
-        navigation_impl.Navigation(
+    add_NavigationServicer_to_server(
+        Navigation(
             ego_pose_pub, target_pose_pubs,
             ego_twist_pub, target_twist_pubs,
             tf_pub, simulation_params, scenario_id),

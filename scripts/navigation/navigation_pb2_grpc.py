@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import navigation_pb2 as navigation__pb2
+import navigation.navigation_pb2 as navigation__pb2
 
 
 class NavigationStub(object):
