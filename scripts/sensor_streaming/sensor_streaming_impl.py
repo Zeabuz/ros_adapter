@@ -70,7 +70,7 @@ class SensorStreaming(SensorStreamingServicer):
         header = std_msgs.msg.Header()
         header.stamp = rospy.Time.from_sec(request.timeInSeconds)
 
-        header.frame_id = "velodyne"
+        header.frame_id = "lidar_fore/os_sensor"
         pointcloud_msg.header = header
 
         pointcloud_msg.height = request.height
